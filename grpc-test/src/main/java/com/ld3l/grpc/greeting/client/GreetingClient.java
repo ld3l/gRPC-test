@@ -31,10 +31,33 @@ public class GreetingClient {
         //request with stream response
         greetServiceBlockingStub.greetStream(greetRequest).forEachRemaining(System.out::println);
 
-        //stream request
+
         CountDownLatch latch = new CountDownLatch(1);
         GreetServiceGrpc.GreetServiceStub asyncClient = GreetServiceGrpc.newStub(channel);
-        StreamObserver<GreetRequest> requestStreamObserver = asyncClient.sendManyRequest(new StreamObserver<GreetResponse>() {
+        //stream request
+//        StreamObserver<GreetRequest> requestStreamObserver = asyncClient.sendManyRequest(new StreamObserver<GreetResponse>() {
+//            @Override
+//            public void onNext(GreetResponse value) {
+//                System.out.println(value);
+//            }
+//
+//            @Override
+//            public void onError(Throwable t) {
+//
+//            }
+//
+//            @Override
+//            public void onCompleted() {
+//                System.out.println("Compl send data");
+//                latch.countDown();
+//            }
+//        });
+//        createStreamOfGreetingRequest()
+//                .forEach(requestStreamObserver::onNext);
+//        requestStreamObserver.onCompleted();
+//        latch.await();
+
+        StreamObserver<GreetRequest> biDirectRequestStreamObserver = asyncClient.stringToUpperCase(new StreamObserver<GreetResponse>() {
             @Override
             public void onNext(GreetResponse value) {
                 System.out.println(value);
@@ -51,22 +74,33 @@ public class GreetingClient {
                 latch.countDown();
             }
         });
-        Stream.of("Ivan", "Peter", "Elza", "Gregory")
+
+        createStreamOfGreetingRequest()
+                .forEach(g->{
+                    System.out.println("send to server: " + g.getGreeting().getFirstName());
+                    biDirectRequestStreamObserver.onNext(g);
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                });
+        biDirectRequestStreamObserver.onCompleted();
+        latch.await();
+
+
+
+
+        channel.shutdown();
+    }
+
+    public static Stream<GreetRequest> createStreamOfGreetingRequest() {
+        return Stream.of("ivan", "peter", "elza", "gregory")
                 .map(name -> Greeting.newBuilder()
                         .setFirstName(name)
                         .build())
                 .map(g -> GreetRequest.newBuilder()
                         .setGreeting(g)
-                        .build())
-                .forEach(requestStreamObserver::onNext);
-
-
-
-        requestStreamObserver.onCompleted();
-
-        latch.await();
-
-        channel.shutdown();
+                        .build());
     }
-
 }

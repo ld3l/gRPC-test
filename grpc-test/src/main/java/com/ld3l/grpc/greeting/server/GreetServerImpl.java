@@ -65,4 +65,29 @@ public class GreetServerImpl extends GreetServiceGrpc.GreetServiceImplBase {
         };
 
     }
+
+    @Override
+    public StreamObserver<GreetRequest> stringToUpperCase(StreamObserver<GreetResponse> responseObserver) {
+        return new StreamObserver<GreetRequest>() {
+            @Override
+            public void onNext(GreetRequest value) {
+                String s = value.getGreeting().getFirstName().toUpperCase();
+                GreetResponse response = GreetResponse.newBuilder()
+                        .setResult(s)
+                        .build();
+                responseObserver.onNext(response);
+            }
+
+            @Override
+            public void onError(Throwable t) {
+
+            }
+
+            @Override
+            public void onCompleted() {
+                responseObserver.onCompleted();
+                System.out.println("Server comlete sending data");
+            }
+        };
+    }
 }

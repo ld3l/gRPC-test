@@ -24,4 +24,6 @@ service GreetService{
   rpc Greet(GreetRequest) returns (GreetResponse) {};
 
   rpc SendManyRequest(stream GreetRequest) returns (GreetResponse){};
+
+  rpc StringToUpperCase(stream GreetRequest) returns (stream GreetResponse){};
 }
