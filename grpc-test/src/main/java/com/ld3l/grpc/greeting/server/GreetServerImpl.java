@@ -21,7 +21,7 @@ public class GreetServerImpl extends GreetServiceGrpc.GreetServiceImplBase {
     @Override
     public void greetStream(GreetRequest request, StreamObserver<GreetResponse> responseObserver) {
         Greeting greeting = request.getGreeting();
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 10; i++) {
             GreetResponse build = GreetResponse.newBuilder()
                     .setResult("Hello " + greeting.getFirstName() + " " + greeting.getLastName() + " response num:" + i)
                     .build();

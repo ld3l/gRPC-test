@@ -9,6 +9,7 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.stream.Stream;
 
 public class GreetingClient {
 
@@ -50,18 +51,16 @@ public class GreetingClient {
                 latch.countDown();
             }
         });
-        requestStreamObserver.onNext(GreetRequest.newBuilder()
-                .setGreeting(Greeting.newBuilder().setFirstName("Ivan").build())
-                .build());
-        requestStreamObserver.onNext(GreetRequest.newBuilder()
-                .setGreeting(Greeting.newBuilder().setFirstName("Peter").build())
-                .build());
-        requestStreamObserver.onNext(GreetRequest.newBuilder()
-                .setGreeting(Greeting.newBuilder().setFirstName("Elza").build())
-                .build());
-        requestStreamObserver.onNext(GreetRequest.newBuilder()
-                .setGreeting(Greeting.newBuilder().setFirstName("Gregory").build())
-                .build());
+        Stream.of("Ivan", "Peter", "Elza", "Gregory")
+                .map(name -> Greeting.newBuilder()
+                        .setFirstName(name)
+                        .build())
+                .map(g -> GreetRequest.newBuilder()
+                        .setGreeting(g)
+                        .build())
+                .forEach(requestStreamObserver::onNext);
+
+
 
         requestStreamObserver.onCompleted();
 
