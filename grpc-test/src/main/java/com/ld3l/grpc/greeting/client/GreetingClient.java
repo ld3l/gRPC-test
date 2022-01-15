@@ -26,6 +26,9 @@ public class GreetingClient {
 
         System.out.println(greet.getResult());
 
+
+        greetServiceBlockingStub.greetStream(greetRequest).forEachRemaining(System.out::println);
+
         channel.shutdown();
     }
 
