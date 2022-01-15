@@ -12,7 +12,7 @@ public class GreetServerImpl extends GreetServiceGrpc.GreetServiceImplBase {
     public void greet(GreetRequest request, StreamObserver<GreetResponse> responseObserver) {
         Greeting greeting = request.getGreeting();
         GreetResponse response = GreetResponse.newBuilder()
-                .setResult("Hello " + greeting.getFirstName())
+                .setResult("Hello " + greeting.getFirstName() + " " + greeting.getLastName())
                 .build();
         responseObserver.onNext(response);
         responseObserver.onCompleted();
